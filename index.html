@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101111">
+  <meta name="description" content="Интерактивный лонгрид о том, как свёрточная сеть учится различать одежду по изображениям Fashion-MNIST.">
+  <title>Режим зрения — интерактивный лонгрид</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./art-direction.css">
+  <script src="./intro.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="boot-cover" id="boot-cover" aria-live="polite">ЗАГРУЗКА ДАННЫХ / 28×28<span class="boot-cursor">_</span></div>
+  <header class="site-header" id="site-header">
+    <a class="brand" href="#top" aria-label="К началу">28×28</a>
+    <nav class="chapter-nav" aria-label="Главы лонгрида">
+      <a href="#input" data-nav="input">01 <span>ВХОД</span></a>
+      <a href="#filter" data-nav="filter">02 <span>ФИЛЬТР</span></a>
+      <a href="#maps" data-nav="maps">03 <span>КАРТЫ</span></a>
+      <a href="#output" data-nav="output">04 <span>ВЫХОД</span></a>
+      <a href="#error" data-nav="error">05 <span>ОШИБКА</span></a>
+      <a href="#training" data-nav="training">06 <span>ПОВТОР</span></a>
+      <a href="#test" data-nav="test">07 <span>ТЕСТ</span></a>
+    </nav>
+    <span class="header-status">система онлайн</span>
+  </header>
+
+  <main id="top">
+    <section class="intro-sequence" id="intro" aria-labelledby="hero-title">
+      <div class="intro-stage" id="intro-stage">
+        <canvas id="intro-cloud" aria-hidden="true"></canvas>
+        <h1 id="hero-title" class="sr-only">Режим зрения. Посмотрите глазами свёрточной нейросети.</h1>
+        <div class="intro-grid" aria-hidden="true"></div>
+        <div class="intro-dark-label" id="intro-dark-label" aria-hidden="true"><span>28</span><span>28</span></div>
+        <div class="intro-scroll-cue" id="intro-scroll-cue">прокрутите ↓</div>
+        <div class="intro-progress" aria-hidden="true"><i id="intro-progress-bar"></i></div>
+      </div>
+    </section>
+
+    <section class="chapter" id="input" data-chapter="1" aria-labelledby="input-title">
+      <div class="machine-panel">
+        <div class="machine-head"><span>01 / INPUT</span><span>ЗРЕНИЕ ОГРАНИЧЕНО</span><span>↓</span></div>
+        <div class="input-prologue">
+          <div class="input-prologue-title"><span>input</span><i></i></div>
+          <canvas id="input-feature-canvas" width="280" height="280" aria-hidden="true"></canvas>
+          <p class="input-prologue-note">Зрение изменилось. Остались только значения яркости.<br><em>Теперь вы смотрите глазами свёрточной нейросети.</em></p>
+          <div class="input-diagram" aria-label="Изображение превращается в значения яркости">
+            <figure><figcaption>[01] input image</figcaption><canvas id="input-diagram-image" width="560" height="560" aria-hidden="true"></canvas></figure>
+            <figure><figcaption>[02] assigning pixel value</figcaption><canvas id="input-diagram-pixels" width="560" height="560" aria-hidden="true"></canvas></figure>
+            <figure><figcaption>[03] output image data</figcaption><canvas id="input-diagram-values" width="560" height="560" aria-hidden="true"></canvas></figure>
+          </div>
+        </div>
+        <div class="machine-content input-layout">
+          <div class="machine-copy reveal">
+            <div class="machine-kicker">СОСТОЯНИЕ 001</div>
+            <h2 id="input-title">ВЫ ПОЛУЧИЛИ<br><span>784 ЧИСЛА.</span></h2>
+            <p>Цвета нет. Фактуры нет. Подписи нет.<br>Нажмите на пиксель, чтобы увидеть его значение.</p>
+            <div class="terminal-line">INPUT: 28 × 28 / GRAYSCALE<br>LABEL: <span class="accent-error">HIDDEN</span><br>STATUS: READY<span class="terminal-cursor">_</span></div>
+          </div>
+          <div class="pixel-stage reveal">
+            <div class="stage-top"><span>ВХОДНОЙ СЛОЙ / 28 × 28</span><span>01 OF 07</span></div>
+            <canvas id="input-canvas" class="pixel-canvas interactive-canvas" width="560" height="560" role="img" aria-label="Сетка пикселей. Нажмите, чтобы увидеть значение яркости."></canvas>
+            <div class="readout" id="pixel-readout" aria-live="polite">X: — &nbsp; Y: — &nbsp; VALUE: —</div>
+          </div>
+        </div>
+        <div class="machine-footer"><span>НАЖМИТЕ НА ИЗОБРАЖЕНИЕ</span><span>ПИКСЕЛЬ → ЧИСЛО</span></div>
+      </div>
+      <div class="human-panel">
+        <div class="human-index reveal">01<span>/07</span></div>
+        <div class="human-copy reveal"><div class="human-label">ПОСЛЕ ДЕЙСТВИЯ / ВЗГЛЯД СО СТОРОНЫ</div><h3>Вы только что потеряли привычное зрение.</h3><p>Человек узнаёт силуэт и достраивает недостающие детали. Сеть получает только 784 значения яркости. Для неё это начало вычисления, а не готовая «рубашка».</p><p>Это реальное изображение из Fashion-MNIST: в наборе десять категорий одежды, но название этой картинки пока скрыто. Позже мы к нему вернёмся.</p><a href="#filter" class="continue-link">ЧТО ДЕЛАТЬ С ЭТИМИ ЧИСЛАМИ? <span>↘</span></a></div>
+        <div class="human-aside reveal"><div class="aside-label">ВАШ ВЗГЛЯД / 001</div><div class="aside-number">28<span>×</span>28</div><p>Что изображено на картинке? Выберите ответ до того, как сеть начнёт учиться.</p><div class="guess-options" id="guess-options"></div><div class="guess-feedback" id="guess-feedback" aria-live="polite">Ответ останется с вами до финала.</div></div>
+      </div>
+    </section>
+
+    <section class="chapter" id="filter" data-chapter="2" aria-labelledby="filter-title">
+      <div class="machine-panel">
+        <div class="machine-head"><span>02 / CONVOLUTION</span><span>ОДНО ОКНО / МНОГО ПОЗИЦИЙ</span><span>↓</span></div>
+        <div class="machine-content filter-layout">
+          <div class="machine-copy reveal"><div class="machine-kicker">СОСТОЯНИЕ 002</div><h2 id="filter-title">ПРОВЕДИТЕ<br><span>ФИЛЬТР.</span></h2><p>Перетаскивайте рамку по картинке. Каждый участок даёт новый отклик.</p><div class="filter-equation" id="filter-equation"><span>УЧАСТОК × ВЕСА + СМЕЩЕНИЕ</span><strong>= 0.000</strong></div><div class="small-note">ФИЛЬТР НА СТАРТЕ ОБУЧЕНИЯ / ЕГО ВЕСА ПОКА СЛУЧАЙНЫ</div></div>
+          <div class="filter-workspace reveal">
+            <div class="filter-image-box"><div class="stage-top"><span>ИЗОБРАЖЕНИЕ</span><span>28 × 28</span></div><div class="filter-interaction" id="filter-interaction"><canvas id="filter-canvas" class="pixel-canvas" width="560" height="560" role="img" aria-label="Изображение для перемещения фильтра"></canvas><div id="filter-window" class="filter-window" aria-hidden="true"></div></div><div class="stage-caption">ПЕРЕМЕЩАЙТЕ РАМКУ ПАЛЬЦЕМ ИЛИ МЫШЬЮ</div></div>
+            <div class="filter-arrow" aria-hidden="true">→</div>
+            <div class="filter-map-box"><div class="stage-top"><span>КАРТА ОТКЛИКОВ</span><span>26 × 26</span></div><canvas id="filter-map-canvas" class="map-canvas" width="520" height="520" role="img" aria-label="Карта откликов свёрточного фильтра"></canvas><div class="stage-caption">ОДНА ПОЗИЦИЯ → ОДНО ЗНАЧЕНИЕ</div></div>
+          </div>
+        </div>
+        <div class="machine-footer"><span>ПЕРЕТАЩИТЕ РАМКУ</span><span>ОДНИ ВЕСА / НОВЫЕ УЧАСТКИ</span></div>
+      </div>
+      <div class="human-panel"><div class="human-index reveal">02<span>/07</span></div><div class="human-copy reveal"><div class="human-label">РАСШИФРОВКА ОПЕРАЦИИ</div><h3>Один фильтр проходит по всей картинке.</h3><p>Внутри рамки — небольшой набор чисел, <em>весов</em>. Они одинаково применяются к каждому участку изображения. Разные участки дают разные значения; из них собирается новая карта.</p><p>Сейчас фильтр ещё не обучен. Его рисунок пока случаен. После множества поправок веса изменятся — и карта откликов тоже станет другой.</p><a href="#maps" class="continue-link">ПОСМОТРЕТЬ НА ВСЕ КАРТЫ <span>↘</span></a></div><div class="human-aside formula-aside reveal"><div class="aside-label">ПРИНЦИП / 002</div><div class="formula-art"><span>3 × 3</span><b>→</b><span>1</span></div><p>девять пикселей и девять весов дают одно значение карты</p></div></div>
+    </section>
+
+    <section class="chapter" id="maps" data-chapter="3" aria-labelledby="maps-title">
+      <div class="machine-panel">
+        <div class="machine-head"><span>03 / FEATURE MAPS</span><span>ОДИН ОБЪЕКТ / НЕСКОЛЬКО СИГНАЛОВ</span><span>↓</span></div>
+        <div class="machine-content maps-layout">
+          <div class="machine-copy reveal"><div class="machine-kicker">СОСТОЯНИЕ 003</div><h2 id="maps-title">ИЗОБРАЖЕНИЕ<br><span>ИЗМЕНИЛОСЬ.</span></h2><p>Выберите карту. Каждый фильтр ответил на ту же картинку по-своему.</p><div class="map-controls" id="map-controls" role="group" aria-label="Выбор карты признаков"></div><button class="outline-button" id="maps-compare" type="button">ПОКАЗАТЬ ПОСЛЕ ОБУЧЕНИЯ <span>↗</span></button><div class="maps-state" id="maps-state">СЕЙЧАС: НЕОБУЧЕННЫЕ ВЕСА</div></div>
+          <div class="maps-visual reveal"><div class="stage-top"><span>КАРТА <b id="map-number">01</b> / 08</span><span>26 × 26</span></div><canvas id="map-detail-canvas" class="map-canvas" width="520" height="520" role="img" aria-label="Выбранная карта признаков"></canvas><div class="map-stack" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>
+        </div>
+        <div class="machine-footer"><span>ВЫБЕРИТЕ КАРТУ</span><span>ВЕСА МЕНЯЮТСЯ ПРИ ОБУЧЕНИИ</span></div>
+      </div>
+      <div class="human-panel"><div class="human-index reveal">03<span>/07</span></div><div class="human-copy reveal"><div class="human-label">РАСШИФРОВКА ОПЕРАЦИИ</div><h3>Теперь у сети несколько версий одной картинки.</h3><p>Каждая карта хранит отклики своего фильтра. Ни одна из них сама по себе не означает «рукав» или «пуловер»: окончательный ответ складывается из многих числовых сигналов.</p><p>Перед следующим шагом модель преобразует и уменьшает карты. Для этой демонстрации мы используем свёртку, ReLU, усреднение соседних участков и финальный слой с десятью оценками.</p><a href="#output" class="continue-link">КАКОЙ ОТВЕТ ПОЛУЧИТСЯ? <span>↘</span></a></div><div class="human-aside map-diagram reveal"><div class="aside-label">СХЕМА / 003</div><div class="diagram-stack"><span>INPUT</span><span>FILTERS</span><span>MAPS</span><span>10 LABELS</span></div></div></div>
+    </section>
+
+    <section class="chapter" id="output" data-chapter="4" aria-labelledby="output-title">
+      <div class="machine-panel">
+        <div class="machine-head"><span>04 / OUTPUT</span><span>ДЕСЯТЬ ВОЗМОЖНЫХ НАЗВАНИЙ</span><span>↓</span></div>
+        <div class="machine-content output-layout"><div class="machine-copy reveal"><div class="machine-kicker">СОСТОЯНИЕ 004</div><h2 id="output-title">НАЙДИТЕ<br><span>СИЛЬНЕЙШИЙ<br>СИГНАЛ.</span></h2><p>Нажмите на категорию с самой длинной полосой. Так сеть выбирает ответ.</p><div class="output-result" id="output-result" aria-live="polite">OUTPUT: ОЖИДАНИЕ ВЫБОРА_</div><div class="small-note">ПОКА ЭТО НАЧАЛО ОБУЧЕНИЯ. ПРАВИЛЬНАЯ МЕТКА СКРЫТА.</div></div><div class="score-board reveal"><div class="stage-top"><span>ОЦЕНКИ КЛАССОВ / ЭПОХА 0</span><span>Σ = 100%</span></div><div id="output-bars" class="score-list"></div></div></div>
+        <div class="machine-footer"><span>ВЫБЕРИТЕ МАКСИМУМ</span><span>ОТВЕТ ≠ ЗНАНИЕ МЕТКИ</span></div>
+      </div>
+      <div class="human-panel"><div class="human-index reveal">04<span>/07</span></div><div class="human-copy reveal"><div class="human-label">РАСШИФРОВКА ОПЕРАЦИИ</div><h3>Сеть сделала предположение. Верно ли оно?</h3><p>Значения прошли через слои и превратились в десять оценок. Самая высокая стала ответом. Это первый, ещё необученный вариант модели — поэтому её решение может выглядеть неожиданно.</p><p>Картинка с начала страницы взята из проверочной части набора. Её метку мы пока не покажем и не используем для обучения. Чтобы увидеть, как возникает поправка, возьмём другое изображение — из обучающей части.</p><a href="#error" class="continue-link">ОТКУДА СЕТЬ УЗНАЕТ ОБ ОШИБКЕ? <span>↘</span></a></div><div class="human-aside reveal"><div class="aside-label">РЕШЕНИЕ / 004</div><div class="aside-number">10<span>→</span>1</div><p>десять оценок, одно выбранное название</p></div></div>
+    </section>
+
+    <section class="chapter" id="error" data-chapter="5" aria-labelledby="error-title">
+      <div class="machine-panel error-panel">
+        <div class="machine-head"><span>05 / ERROR</span><span>ОБУЧАЮЩИЙ ПРИМЕР / МЕТКА ИЗВЕСТНА</span><span>↓</span></div>
+        <div class="machine-content error-layout"><div class="machine-copy reveal"><div class="machine-kicker">СОСТОЯНИЕ 005</div><h2 id="error-title">ОТВЕТ<br><span>НЕ СОШЁЛСЯ.</span></h2><p>Это уже другая картинка, из обучающей части. Откройте метку и запустите поправку.</p><button class="action-button" id="reveal-error" type="button">ПОКАЗАТЬ МЕТКУ <span>↗</span></button><button class="outline-button correction-button" id="apply-correction" type="button" disabled>ПРОВЕСТИ ОШИБКУ НАЗАД <span>↶</span></button><div class="correction-status" id="correction-status" aria-live="polite">ПРЕДПОЛОЖЕНИЕ: —<br>МЕТКА: СКРЫТА</div></div><div class="error-visual reveal"><div class="error-image-wrap"><div class="stage-top"><span>TRAIN SET / ПРИМЕР #<b id="train-index">----</b></span><span>28 × 28</span></div><canvas id="error-canvas" class="pixel-canvas" width="560" height="560" role="img" aria-label="Обучающее изображение одежды"></canvas></div><div class="backflow" id="backflow" aria-hidden="true"><div class="backflow-node">ВХОД</div><div class="backflow-line"></div><div class="backflow-node">ФИЛЬТРЫ</div><div class="backflow-line"></div><div class="backflow-node">ОТВЕТ</div></div></div></div>
+        <div class="machine-footer"><span>ОТВЕТ + МЕТКА → ОШИБКА</span><span>ОШИБКА → ИЗМЕНЕНИЕ ВЕСОВ</span></div>
+      </div>
+      <div class="human-panel"><div class="human-index reveal">05<span>/07</span></div><div class="human-copy reveal"><div class="human-label">РАСШИФРОВКА ОПЕРАЦИИ</div><h3>Путь назад меняет следующий путь вперёд.</h3><p>У обучающей картинки есть метка. Модель сначала отвечает сама, затем её ответ сравнивают с этой меткой. Вычисленная ошибка помогает изменить веса фильтров и финального слоя.</p><p>Поправка мала и не обещает, что следующая попытка будет верной. В настоящем обучении изменения рассчитываются по партиям изображений. Здесь мы замедлили один цикл, чтобы увидеть его направление.</p><a href="#training" class="continue-link">СКОЛЬКО РАЗ ЭТО ПОВТОРЯЕТСЯ? <span>↘</span></a></div><div class="human-aside reveal"><div class="aside-label">ЦИКЛ / 005</div><div class="loop-art"><span>ОТВЕТ</span><b>↓</b><span>ОШИБКА</span><b>↺</b><span>НОВЫЕ ВЕСА</span></div></div></div>
+    </section>
+
+    <section class="chapter" id="training" data-chapter="6" aria-labelledby="training-title">
+      <div class="machine-panel training-panel">
+        <div class="machine-head"><span>06 / TRAINING</span><span>ОДИН ЦИКЛ × МНОГО ПРИМЕРОВ</span><span>↓</span></div>
+        <div class="training-mosaic" id="training-mosaic" aria-hidden="true"></div>
+        <div class="machine-content training-layout"><div class="machine-copy reveal"><div class="machine-kicker">СОСТОЯНИЕ 006</div><h2 id="training-title">ПОВТОРИТЕ.<br><span>ЕЩЁ РАЗ.</span></h2><p>Переключайте этапы обучения. Мы сохранили реальные состояния одной небольшой CNN.</p><div class="epoch-tabs" id="epoch-tabs" role="group" aria-label="Выбор этапа обучения"></div><div class="epoch-caption" id="epoch-caption">ЭПОХА 0 / СЛУЧАЙНЫЕ ВЕСА</div></div><div class="training-dash reveal"><div class="dash-top"><span>ОДИН ОБУЧАЮЩИЙ ПРИМЕР</span><span>КОМПЬЮТЕРНЫЙ ЭКСПЕРИМЕНТ</span></div><div class="dash-row"><canvas id="training-canvas" class="pixel-canvas" width="280" height="280" role="img" aria-label="Обучающее изображение"></canvas><div class="dash-prediction"><span>ПРЕДПОЛОЖЕНИЕ СЕТИ</span><strong id="epoch-prediction">—</strong><span>ОЦЕНКА ДЛЯ ВЕРНОГО КЛАССА</span><div class="metric-track"><i id="epoch-confidence-bar"></i></div><b id="epoch-confidence">—</b></div></div><div class="dash-bottom"><span>ВЕРНАЯ МЕТКА: <b id="epoch-label">—</b></span><span>ТОЧНОСТЬ НА ОБУЧАЮЩИХ ПАРТИЯХ: <b id="epoch-accuracy">—</b></span></div></div></div>
+        <div class="machine-footer"><span>60 000 ОБУЧАЮЩИХ ИЗОБРАЖЕНИЙ</span><span>10 000 ТЕСТОВЫХ НЕ УЧАСТВУЮТ</span></div>
+      </div>
+      <div class="human-panel"><div class="human-index reveal">06<span>/07</span></div><div class="human-copy reveal"><div class="human-label">РАСШИФРОВКА МАСШТАБА</div><h3>Одна поправка стала тысячами попыток.</h3><p>Мы растянули один шаг на предыдущем экране. В обучении сеть проходит через большие партии картинок, много раз сравнивает ответы с метками и обновляет веса. На этих сохранённых этапах видно, как меняется ответ на один обучающий пример.</p><p>Наш прототип обучал сеть на всех 60 000 изображениях обучающей части Fashion-MNIST. Отдельные 10 000 изображений оставались для проверки. Теперь можно открыть её экзамен.</p><a href="#test" class="continue-link">ДАТЬ НЕЗНАКОМУЮ КАРТИНКУ <span>↘</span></a></div><div class="human-aside reveal"><div class="aside-label">МАСШТАБ / 006</div><div class="aside-number small-number">60<span>000</span></div><p>примеров для обучения</p></div></div>
+    </section>
+
+    <section class="chapter" id="test" data-chapter="7" aria-labelledby="test-title">
+      <div class="machine-panel test-panel">
+        <div class="machine-head"><span>07 / TEST</span><span>МЕТКИ ОТКРОЕМ ПОСЛЕ ОТВЕТА</span><span>↓</span></div>
+        <div class="machine-content test-layout"><div class="machine-copy reveal"><div class="machine-kicker">СОСТОЯНИЕ 007</div><h2 id="test-title">ТЕПЕРЬ<br><span>БЕЗ ПОДСКАЗКИ.</span></h2><p>Выберите новое изображение. Первое — то самое, с обложки. Модель не использовала его при обучении.</p><div class="test-actions"><button class="action-button" id="run-test" type="button">ЗАПУСТИТЬ СЕТЬ <span>↗</span></button><button class="outline-button" id="reveal-test" type="button" disabled>ОТКРЫТЬ МЕТКУ <span>↗</span></button></div><div class="test-result" id="test-result" aria-live="polite">INPUT SELECTED / OUTPUT PENDING_</div></div><div class="test-workspace reveal"><div class="stage-top"><span>НЕЗНАКОМЫЕ ИЗОБРАЖЕНИЯ / TEST SET</span><span>ВЫБЕРИТЕ 01–03</span></div><div class="test-card-grid" id="test-card-grid"></div><div class="test-probabilities" id="test-probabilities"></div></div></div>
+        <div class="machine-footer"><span>ОБЪЕКТ БЫЛ СКРЫТ ОТ ОБУЧЕНИЯ</span><span>НОВЫЕ ДАННЫЕ → ОТВЕТ</span></div>
+      </div>
+      <div class="finale human-panel"><div class="human-index reveal">07<span>/07</span></div><div class="human-copy reveal"><div class="human-label">ВОЗВРАЩЕНИЕ / ЧЕЛОВЕЧЕСКИЙ ВЗГЛЯД</div><h3>Теперь вы видите два изображения сразу.</h3><p>Одно — знакомый силуэт вещи. Второе — путь из пикселей, откликов, оценок и поправок, по которому сеть пришла к её названию.</p><p>На проверочной части набора эта небольшая модель правильно назвала <strong id="final-accuracy">—</strong> изображений из ста. Это успех в конкретных условиях: маленькие серые картинки и десять возможных ответов. Рядом с верными ответами остаются ошибки.</p><div class="final-answer" id="final-answer"><span>ВАШ ПЕРВЫЙ ОТВЕТ</span><strong id="human-first-answer">—</strong><span>ОТВЕТ ОБУЧЕННОЙ СЕТИ</span><strong id="machine-final-answer">—</strong></div><p class="closing-line">Вы снова смотрите как человек. Теперь вы знаете, откуда взялся ответ машины.</p></div><div class="human-aside finale-aside reveal"><div class="aside-label">ОДНО ИЗОБРАЖЕНИЕ / ДВА ВЗГЛЯДА</div><canvas id="final-canvas" class="pixel-canvas" width="420" height="420" role="img" aria-label="Изображение одежды из начала лонгрида"></canvas><div class="finale-aside-footer">28 × 28 PIXELS <span>↗</span> ОДНА ВЕЩЬ</div></div></div>
+    </section>
+
+    <footer class="site-footer"><div><strong>РЕЖИМ ЗРЕНИЯ</strong><p>Прототип интерактивного лонгрида о свёрточной сети и Fashion-MNIST.</p></div><div><span>ДАННЫЕ ИЗОБРАЖЕНИЙ</span><a href="https://github.com/zalandoresearch/fashion-mnist" target="_blank" rel="noopener noreferrer">Zalando Research / Fashion-MNIST ↗</a><span>МОДЕЛЬ</span><p>Conv 3×3 → ReLU → AvgPool 2×2 → Dense 10. Обучена для этого прототипа; результаты на странице получены из сохранённых состояний модели.</p></div><a class="back-top" href="#top">НАВЕРХ ↑</a></footer>
+  </main>
+</body>
+</html>
